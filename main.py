@@ -14,7 +14,7 @@ FROM_MAIL = os.getenv("CONCHECK_FROM")
 def notify(mail: str):
     resend.api_key = RESEND_API_KEY
 
-    now = datetime.now().strftime("%d/%m/%Y - %H:%M")
+    now = datetime.now().strftime("%d/%m/%Y - %H:%M (%Z)")
     mail_template = Path("template.html").read_text()
 
     params: resend.Emails.SendParams = {
