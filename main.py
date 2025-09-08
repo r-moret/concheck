@@ -6,7 +6,7 @@ import requests
 
 from pathlib import Path
 from lxml import html, etree
-from datetime import datetime
+from datetime import datetime, timezone
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 FROM_MAIL = os.getenv("CONCHECK_FROM")
@@ -14,7 +14,7 @@ FROM_MAIL = os.getenv("CONCHECK_FROM")
 def notify(mail: str):
     resend.api_key = RESEND_API_KEY
 
-    now = datetime.now().strftime("%d/%m/%Y - %H:%M (%Z)")
+    now = datetime.now(timezone.utc).strftime("%d/%m/%Y - %H:%M (%Z)")
     mail_template = Path("template.html").read_text()
 
     params: resend.Emails.SendParams = {
