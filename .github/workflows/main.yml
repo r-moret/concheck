@@ -6,7 +6,7 @@ on:
     - cron: "*/10 * * * *"
 
 jobs:
-  run-python:
+  check-condition:
     runs-on: ubuntu-latest
     env:
       CONCHECK_XPATH_COND: ${{ vars.CONCHECK_XPATH_COND }}
