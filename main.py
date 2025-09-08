@@ -4,8 +4,8 @@ import resend
 import argparse
 import requests
 
-from lxml import html
 from pathlib import Path
+from lxml import html, etree
 from datetime import datetime
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
@@ -26,9 +26,19 @@ def notify(mail: str):
 
     resend.Emails.send(params)   
 
-def main(text: str, condition: str, notification_mail: str | None):
+def main(text: str, condition: str, notification_mail: str | None, debug_path: str | None):
     tree = html.fromstring(text)
     satisfies_condition = tree.xpath(condition)
+
+    if debug_path:
+        debug_elements = tree.xpath(debug_path)
+
+        if len(debug_elements) == 0:
+            print("DEBUG: No elements were found for this path")
+
+        for element in debug_elements:
+            print("======= ======= DEBUG ELEMENT ======= =======")
+            print(etree.tostring(element, pretty_print=True, encoding="unicode"))
 
     if not isinstance(satisfies_condition, bool):
         raise TypeError("The condition used didn't give a boolean result, make sure you are passing a restriction and not a search path")
@@ -50,6 +60,7 @@ if __name__ == '__main__':
     parser.add_argument('-u', '--url', help='URL of the webpage to analyze', required=False, default=None)
     parser.add_argument('-p', '--xpath', help='XPath with the condition to check for', required=True)
     parser.add_argument('-n', '--notify', help='Email to notify when the condition is detected as satisfied', required=False, default=None)
+    parser.add_argument('--debug_xpath', help='Additional XPath you can specify to debug the content of the page', required=False, default=None)
     args = parser.parse_args()
 
     if args.url:          # URL specified
@@ -71,4 +82,4 @@ if __name__ == '__main__':
         if not RESEND_API_KEY:
             raise ValueError('No Resend API key was found, please provide one to be notified')
 
-    main(text, args.xpath, args.notify)
+    main(text, args.xpath, args.notify, args.debug_xpath)
