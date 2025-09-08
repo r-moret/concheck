@@ -1,0 +1,32 @@
+name: Check condition
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-python:
+    runs-on: ubuntu-latest
+    env:
+      CONCHECK_XPATH_COND: ${{ vars.CONCHECK_XPATH_COND }}
+      CONCHECK_DEBUG_XPATH: ${{ vars.CONCHECK_DEBUG_XPATH }}
+      CONCHECK_URL: ${{ vars.CONCHECK_URL }}
+      CONCHECK_FROM: ${{ secrets.CONCHECK_FROM }}
+      CONCHECK_NOTIFY: ${{ secrets.CONCHECK_NOTIFY }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Execute condition check
+        run: python main.py --xpath "$CONCHECK_XPATH_COND" --debug_xpath "$CONCHECK_DEBUG_XPATH" --notify "$CONCHECK_NOTIFY" --url "$CONCHECK_URL"
